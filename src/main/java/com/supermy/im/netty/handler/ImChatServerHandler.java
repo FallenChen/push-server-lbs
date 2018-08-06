@@ -508,7 +508,7 @@ public class ImChatServerHandler extends SimpleChannelInboundHandler<String> { /
     /**
      * 获取司机的位置信息
      *
-     * @param incg
+     * @param driver
      * @param driverGeo
      */
     private void sendGeo(final Channel driver, final Document driverGeo) {
@@ -521,7 +521,8 @@ public class ImChatServerHandler extends SimpleChannelInboundHandler<String> { /
         //final AtomicReference<Throwable> th = new AtomicReference<>();
         //logger.debug("insert driverGeo:"+json.toString());
 
-        final String driverId = driverGeo.getString("_id");
+        //final String driverId = driverGeo.getString("_id");
+        final String driverId = driverGeo.getString("phone");
         final ArrayList position = driverGeo.get("position", ArrayList.class);
 
         mongoCollection.insertOne(Document.parse(String.format(env.getProperty("driver.geo"),
@@ -538,6 +539,14 @@ public class ImChatServerHandler extends SimpleChannelInboundHandler<String> { /
                 driver.writeAndFlush(String.format(env.getProperty("im.msg"), Cmd.SEND_MSG, driverId + " 数据插入完成...", System.currentTimeMillis(), "success", Cmd.DATA_EMPTY) + "\n");
             }
         });
+
+        mongoCollection.find().first(new SingleResultCallback<Document>() {
+            @Override
+            public void onResult(final Document document, final Throwable t) {
+                System.out.println(document.toJson());
+            }
+        });
+
         //countWait.await(10, TimeUnit.SECONDS);
 
         //给乘客联系人发送geo 信息 ,异步

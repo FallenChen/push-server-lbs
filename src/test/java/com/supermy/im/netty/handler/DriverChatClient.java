@@ -1,6 +1,7 @@
 package com.supermy.im.netty.handler;
 
 import com.supermy.im.netty.domain.Cmd;
+import com.supermy.im.utils.NumberRam;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -85,7 +86,7 @@ public class DriverChatClient {
 
             //1.司机出车绑定
             String json = String.format(SetSystemProperty.getKeyValue("im.msg"), Cmd.BIND_DRIVER,"司机出车",new Date().getTime(), "success",
-                    "{'_id':'13566717966','name':'张司机','plateNumber':'京P98888'}");
+                    "{'_id':'18734913008','name':'张司机','plateNumber':'京P98888'}");
 
             channel.writeAndFlush(json+"\n");
 
@@ -95,7 +96,8 @@ public class DriverChatClient {
                     new Runnable() {
                         @Override
                         public void run() {
-                            String data = String.format(SetSystemProperty.getKeyValue("driver.geo"), "13566717966",new Date().getTime(), "130.2","30.1");
+                            //String data = String.format(SetSystemProperty.getKeyValue("driver.geo"), "18734913008",new Date().getTime(), "122.2","30.1");
+                            String data = String.format(SetSystemProperty.getKeyValue("driver.geo"), "18734913008",new Date().getTime(), NumberRam.Longitude(),NumberRam.Latitude());
 
                             String json = String.format(SetSystemProperty.getKeyValue("im.msg"), Cmd.SEND_GEO,"司机位置信息",new Date().getTime(), "success",data);
                             channel.writeAndFlush(json + "\n");

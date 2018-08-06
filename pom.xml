@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-async</artifactId>
-            <version>3.2.0</version>
+            <version>3.3.0</version>
         </dependency>
 
 
@@ -56,6 +56,12 @@
             <version>4.0.36.Final</version>
             <scope>compile</scope>
         </dependency>
+
+        <!--<dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-example</artifactId>
+            <version>5.0.0.Alpha1</version>
+        </dependency>-->
 
         <dependency>
             <groupId>junit</groupId>

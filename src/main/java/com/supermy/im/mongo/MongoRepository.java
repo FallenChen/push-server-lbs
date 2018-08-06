@@ -15,6 +15,8 @@
  */
 package com.supermy.im.mongo;
 
+import com.mongodb.Block;
+import com.mongodb.ConnectionString;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.async.SingleResultCallback;
@@ -86,8 +88,6 @@ public class MongoRepository {
     public String iMmsg;
 
 
-
-
     @Bean(name = "mongoClient")
     public MongoClient mongoClient() {
         System.out.println("*******************" + mongoAddress);
@@ -115,16 +115,15 @@ public class MongoRepository {
     }
 
     /**
-     *
      * @param collectionName
      * @return
      */
     public boolean collectionExists(final String collectionName) {
 
 
-        MongoIterable colls=mongoDatabase().listCollectionNames();
+        MongoIterable colls = mongoDatabase().listCollectionNames();
 
-         List<String> collectionNames = new ArrayList<String>();
+        List<String> collectionNames = new ArrayList<String>();
 
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(1);//数据不存在情况测试
@@ -132,7 +131,7 @@ public class MongoRepository {
             colls.into(collectionNames, new SingleResultCallback<Void>() {
                 @Override
                 public void onResult(final Void result, final Throwable t) {
-                   // logger.debug("执行完成");
+                    // logger.debug("执行完成");
                     countDownLatch.countDown();
                 }
             });
@@ -162,7 +161,7 @@ public class MongoRepository {
          * 如果集合不存在,创建集合;设定集合索引的失效时间;
          * 实际如果超过1分钟不更新位置数据,可能失效,不再进行附近的推荐查询;
          */
-        if (!collectionExists(mycoll)){
+        if (!collectionExists(mycoll)) {
             final CountDownLatch countDownLatch = new CountDownLatch(1);//数据不存在情况测试
 
             mydb.createCollection(mycoll, new SingleResultCallback<Void>() {
@@ -173,8 +172,7 @@ public class MongoRepository {
                     MongoCollection coll = mydb.getCollection(mycoll);
 
 
-
-                    coll.createIndex(new Document("position","2d"), new SingleResultCallback<Void>() {
+                    coll.createIndex(new Document("position", "2d"), new SingleResultCallback<Void>() {
                         @Override
                         public void onResult(final Void result, final Throwable t) {
                             // logger.debug("创建索引不用等待完成");
@@ -226,28 +224,89 @@ public class MongoRepository {
     }
 
 
-//    public static void main(String[] args) throws Exception {
-////        ClusterSettings clusterSettings = ClusterSettings.builder().hosts(Arrays.asList(new ServerAddress("127.0.0.1"))).build();
-////        MongoCredential credential = MongoCredential.createCredential("mydb", "mydb", "123456");
-////
-////        MongoClientSettings settings = MongoClientSettings.builder().streamFactoryFactory(new NettyStreamFactoryFactory()).
-////                clusterSettings(clusterSettings).credentialList(Arrays.asList(credential)).build();
-////
-//////        MongoClient mongoClient = new MongoClient(new ServerAddress(), Arrays.asList(credential));
-////
-////        MongoClient mongoClient = MongoClients.create(settings);
-////        MongoDatabase mydb = mongoClient().getDatabase("mydb");
-////        MongoCollection coll = mydb.getCollection("location");
-////
-////        String query =  "{position: { $near: [0.1,0.2], $maxDistance: 0.7  } }";
-////        Document find = Document.parse(query);
-////
-////
-////
-////        FindIterable drivers = coll.find(find);
-////
-////        System.out.println(drivers);
-//    }
+    public static void main(String[] args) throws Exception {
+//        ClusterSettings clusterSettings = ClusterSettings.builder().hosts(Arrays.asList(new ServerAddress("127.0.0.1"))).build();
+//        MongoCredential credential = MongoCredential.createCredential("mydb", "mydb", "123456".toCharArray());
+//
+//        MongoClientSettings settings = MongoClientSettings.builder().streamFactoryFactory(new NettyStreamFactoryFactory()).
+//                clusterSettings(clusterSettings).credentialList(Arrays.asList(credential)).build();
+//
+////        MongoClient mongoClient = new MongoClient(new ServerAddress(), Arrays.asList(credential));
+//
+//        MongoClient mongoClient = MongoClients.create(settings);
+//        MongoDatabase mydb = mongoClient.getDatabase("mydb");
+//        MongoCollection collection = mydb.getCollection("location");
+
+//        String query = "{position: { $near: [120.2,30.1], $maxDistance: 0.7  } }";
+//        Document find = Document.parse(query);
+//
+//
+//        FindIterable drivers = coll.find(find);
+//
+//        System.out.println(drivers);
+//
+//        SingleResultCallback<Document> resultCallback = new SingleResultCallback<Document>() {
+//
+//            @Override
+//            public void onResult(Document result, Throwable t) {
+//                System.out.println(result.toJson());
+//            }
+//        };
+//
+//        coll.find().first(resultCallback);
+//
+//        System.out.println();
+
+//        Block<Document> documentBlock = new Block<Document>() {
+//
+//            @Override
+//            public void apply(Document document) {
+//                System.out.println(document.toJson());
+//            }
+//        };
+//
+//        SingleResultCallback<Void> callback = new SingleResultCallback<Void>() {
+//
+//            @Override
+//            public void onResult(Void result, Throwable t) {
+//                System.out.println("Operation finished!");
+//            }
+//        };
+//
+//        coll.find().forEach(documentBlock,callback);
+//
+//        System.out.println();
+
+        // To directly connect to the default server localhost on port 27017
+       // MongoClient mongoClient = MongoClients.create();
+
+// Use a Connection String
+        //MongoClient mongoClient = MongoClients.create("mongodb://localhost");
+
+// or a Connection String
+        //MongoClient mongoClient = MongoClients.create(new ConnectionString("mongodb://localhost"));
+
+// or provide custom MongoClientSettings
+        ClusterSettings clusterSettings = ClusterSettings.builder().hosts(Arrays.asList(new ServerAddress("localhost"))).build();
+        MongoClientSettings settings = MongoClientSettings.builder().clusterSettings(clusterSettings).build();
+        MongoClient mongoClient = MongoClients.create(settings);
+
+        MongoDatabase database = mongoClient.getDatabase("mydb");
+
+        MongoCollection<Document> collection = database.getCollection("location");
+
+        Document doc = new Document("name", "MongoDB")
+                .append("type", "database")
+                .append("count", 1)
+                .append("info", new Document("x", 203).append("y", 102));
+
+        collection.insertOne(doc, new SingleResultCallback<Void>() {
+            @Override
+            public void onResult(final Void result, final Throwable t) {
+                System.out.println("Inserted!");
+            }
+        });
+    }
 
 
 }

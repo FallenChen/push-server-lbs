@@ -17,6 +17,7 @@ package com.supermy.im;
 
 import com.supermy.im.netty.ChannelRepository;
 import com.supermy.im.netty.handler.ImChannelInitializer;
+import com.supermy.im.netty.handler.WebSocketInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -102,7 +104,9 @@ public class Application {
         b.group(bossGroup(), workerGroup())
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.ERROR))
+                //.childHandler(webSocketInitializer)
                 .childHandler(imChannelInitializer);
+
 
         /**
          * 参数设置
@@ -119,6 +123,10 @@ public class Application {
     @Autowired
     @Qualifier("imChannelInitializer")
     private ImChannelInitializer imChannelInitializer;
+
+//    @Autowired
+//    @Qualifier("webSocketInitializer")
+//    private WebSocketInitializer webSocketInitializer;
 
 
     @Bean(name = "tcpChannelOptions")
